@@ -1,6 +1,9 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace AuthenticationWebApi.Controllers
 {
@@ -9,17 +12,23 @@ namespace AuthenticationWebApi.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IAuthService _authService;
+        private readonly DataContext _context;
 
-        public AuthController(IAuthService authService)
+        public AuthController(IAuthService authService, DataContext context)
         {
             _authService = authService;
+            _context = context;
         }
 
         [HttpPost]
         public async Task<ActionResult<User>> RegisterUser(UserDto request)
         {
             var response = await _authService.RegisterUser(request);
-            return Ok(response);
+            if (response.Success)
+            {
+                return Ok(response);
+            }
+            return BadRequest(response);
         }
 
         [HttpPost("login")]
@@ -29,7 +38,7 @@ namespace AuthenticationWebApi.Controllers
             if(response.Success)
                 return Ok(response);
 
-            return BadRequest(response.Message);
+            return BadRequest(new {message=response.Message});
         }
 
         [HttpPost("refresh-token")]
@@ -42,10 +51,37 @@ namespace AuthenticationWebApi.Controllers
             return BadRequest(response.Message);
         }
 
-        [HttpGet, Authorize(Roles = "User,Admin")]
-        public ActionResult<string> Aloha()
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [HttpGet("me")]
+        public async Task<ActionResult<AuthResponseDto>> GetMe()
         {
-            return Ok("Aloha! You're authorized!");
+            var response = await _authService.GetMe();
+
+            if(response.Success)
+                return Ok(response);
+
+            return BadRequest(response.Message);
+
+        }
+
+        [HttpGet("logout")]
+        public async Task<ActionResult<AuthResponseDto>> Logout()
+        {
+            var response = await _authService.Logout();
+            return Ok(response);
+        }
+
+
+        [HttpGet("user/{id}")]
+        public async Task<ActionResult<UserResponseDto>> GetUserById(int id)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(u=>u.Id==id);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            return new UserResponseDto { Id=user.Id,Name=user.Name };
         }
     }
 }

@@ -2,8 +2,12 @@
 {
     public interface IAuthService
     {
-        Task<User> RegisterUser(UserDto request);
+        Task<AuthResponseDto> RegisterUser(UserDto request);
         Task<AuthResponseDto> Login(UserDto request);
         Task<AuthResponseDto> RefreshToken();
+        Task<AuthResponseDto> GetMe();
+        Task<AuthResponseDto> Logout();
+
+        int? GetCurrentUserId();
     }
 }

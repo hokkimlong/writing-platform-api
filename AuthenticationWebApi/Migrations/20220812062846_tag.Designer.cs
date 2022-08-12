@@ -3,6 +3,7 @@ using System;
 using AuthenticationWebApi.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,27 +11,13 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AuthenticationWebApi.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20220812062846_tag")]
+    partial class tag
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "6.0.8");
-
-            modelBuilder.Entity("ArticleTag", b =>
-                {
-                    b.Property<int>("ArticlesId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("TagsId")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("ArticlesId", "TagsId");
-
-                    b.HasIndex("TagsId");
-
-                    b.ToTable("ArticleTag");
-                });
 
             modelBuilder.Entity("AuthenticationWebApi.Models.Article", b =>
                 {
@@ -59,38 +46,13 @@ namespace AuthenticationWebApi.Migrations
                     b.ToTable("Article");
                 });
 
-            modelBuilder.Entity("AuthenticationWebApi.Models.Comment", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("ArticleId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Message")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ArticleId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Comment");
-                });
-
             modelBuilder.Entity("AuthenticationWebApi.Models.Tag", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("ArticleId")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Name")
@@ -102,6 +64,8 @@ namespace AuthenticationWebApi.Migrations
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ArticleId");
 
                     b.ToTable("Tag");
                 });
@@ -150,21 +114,6 @@ namespace AuthenticationWebApi.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("ArticleTag", b =>
-                {
-                    b.HasOne("AuthenticationWebApi.Models.Article", null)
-                        .WithMany()
-                        .HasForeignKey("ArticlesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("AuthenticationWebApi.Models.Tag", null)
-                        .WithMany()
-                        .HasForeignKey("TagsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("AuthenticationWebApi.Models.Article", b =>
                 {
                     b.HasOne("AuthenticationWebApi.Models.User", "User")
@@ -176,23 +125,16 @@ namespace AuthenticationWebApi.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("AuthenticationWebApi.Models.Comment", b =>
+            modelBuilder.Entity("AuthenticationWebApi.Models.Tag", b =>
                 {
-                    b.HasOne("AuthenticationWebApi.Models.Article", "Article")
-                        .WithMany()
-                        .HasForeignKey("ArticleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.HasOne("AuthenticationWebApi.Models.Article", null)
+                        .WithMany("Tags")
+                        .HasForeignKey("ArticleId");
+                });
 
-                    b.HasOne("AuthenticationWebApi.Models.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Article");
-
-                    b.Navigation("User");
+            modelBuilder.Entity("AuthenticationWebApi.Models.Article", b =>
+                {
+                    b.Navigation("Tags");
                 });
 
             modelBuilder.Entity("AuthenticationWebApi.Models.User", b =>
