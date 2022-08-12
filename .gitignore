@@ -360,7 +360,11 @@ MigrationBackup/
 .ionide/
 
 # Fody - auto-generated XML schema
+<<<<<<< HEAD
 FodyWeavers.xsd
 /AuthenticationWebApi/auth.db
 /AuthenticationWebApi/auth.db-wal
 /AuthenticationWebApi/auth.db-shm
+=======
+FodyWeavers.xsd
+>>>>>>> 6087e07cb353ef4054c58e03a91cb9b6e545265f
